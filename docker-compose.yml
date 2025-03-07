@@ -1,16 +1,16 @@
 volumes:
   lago_postgres_data:
-  lago_redis_data:
+  # lago_redis_data: 
   lago_storage_data:
 
 x-postgres-image: &postgres-image
   image: postgres:14-alpine
-x-redis-image: &redis-image
-  image: redis:6-alpine
+# x-redis-image: &redis-image
+#   image: redis:6-alpine
 x-backend-image: &backend-image
-  image: getlago/api:v1.22.1
+  image: vineeth2546/lago-api-image:1.0 #created own api image and pushed to docker hub
 x-frontend-image: &frontend-image
-  image: getlago/front:v1.22.1
+  image: vineeth2546/lago-frontend-image:1.0 #created own front end image and pushed to docker hub
 
 x-lago-api-url: &lago-api-url
   "LAGO_API_URL": ${LAGO_API_URL:-http://localhost:3000}
@@ -94,20 +94,20 @@ services:
     ports:
       - ${POSTGRES_PORT:-5432}:${POSTGRES_PORT:-5432}
 
-  redis:
-    <<: *redis-image
-    container_name: lago-redis
-    restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 10s
-      timeout: 5s
-      retries: 5
-    command: --port ${REDIS_PORT:-6379}
-    volumes:
-      - lago_redis_data:/data
-    ports:
-      - ${REDIS_PORT:-6379}:${REDIS_PORT:-6379}
+  # redis: #replacing this redis service with our own managed one.
+  #   <<: *redis-image
+  #   container_name: lago-redis
+  #   restart: unless-stopped
+  #   healthcheck:
+  #     test: ["CMD", "redis-cli", "ping"]
+  #     interval: 10s
+  #     timeout: 5s
+  #     retries: 5
+  #   command: --port ${REDIS_PORT:-6379}
+  #   volumes:
+  #     - lago_redis_data:/data
+  #   ports:
+  #     - ${REDIS_PORT:-6379}:${REDIS_PORT:-6379}
 
   migrate:
     <<: *backend-image
@@ -130,9 +130,9 @@ services:
       db:
         condition: service_healthy
         restart: true
-      redis:
-        condition: service_healthy
-        restart: true
+      # redis:
+      #   condition: service_healthy
+      #   restart: true
     command: ["./scripts/start.api.sh"]
     healthcheck:
       test: curl -f http://localhost:3000/health || exit 1
@@ -192,9 +192,9 @@ services:
       db:
         condition: service_healthy
         restart: true
-      redis:
-        condition: service_healthy
-        restart: true
+      # redis:
+      #   condition: service_healthy
+      #   restart: true
     command: ["./scripts/start.worker.sh"]
     healthcheck:
       test: curl -f http://localhost:8080 || exit 1
@@ -280,9 +280,9 @@ services:
       db:
         condition: service_healthy
         restart: true
-      redis:
-        condition: service_healthy
-        restart: true
+      # redis:
+      #   condition: service_healthy
+      #   restart: true
     command: ["./scripts/start.clock.sh"]
     environment:
       <<: [*backend-env, *lago-api-url]
