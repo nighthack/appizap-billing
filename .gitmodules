@@ -3,4 +3,4 @@
 	url = git@github.com:nighthack/Appizap-BillingAPI.git
 [submodule "front"]
 	path = front
-	url = git@github.com:getlago/lago-front.git
+	url = git@github.com:nighthack/Appizap-BillingFrontend.git
